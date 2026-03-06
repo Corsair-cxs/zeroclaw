@@ -29,6 +29,18 @@ impl ShellTool {
     }
 }
 
+fn floor_char_boundary(s: &str, max: usize) -> usize {
+    if max >= s.len() {
+        return s.len();
+    }
+
+    let mut idx = max;
+    while idx > 0 && !s.is_char_boundary(idx) {
+        idx -= 1;
+    }
+    idx
+}
+
 fn is_valid_env_var_name(name: &str) -> bool {
     let mut chars = name.chars();
     match chars.next() {
@@ -164,11 +176,15 @@ impl Tool for ShellTool {
 
                 // Truncate output to prevent OOM
                 if stdout.len() > MAX_OUTPUT_BYTES {
-                    stdout.truncate(stdout.floor_char_boundary(MAX_OUTPUT_BYTES));
+                    // stdout.truncate(stdout.floor_char_boundary(MAX_OUTPUT_BYTES));
+                    let cut = floor_char_boundary(&stdout, MAX_OUTPUT_BYTES);
+                    stdout.truncate(cut);
                     stdout.push_str("\n... [output truncated at 1MB]");
                 }
                 if stderr.len() > MAX_OUTPUT_BYTES {
-                    stderr.truncate(stderr.floor_char_boundary(MAX_OUTPUT_BYTES));
+                    // stderr.truncate(stderr.floor_char_boundary(MAX_OUTPUT_BYTES));
+                    let cut = floor_char_boundary(&stderr, MAX_OUTPUT_BYTES);
+                    stderr.truncate(cut);
                     stderr.push_str("\n... [stderr truncated at 1MB]");
                 }
 
